@@ -1,114 +1,172 @@
-# 🎬 MovieStore Management System (Java OOP)
+# 🎬 MovieStore Management System — Java + Gradle (Pinned)
 
-![Java](https://img.shields.io/badge/Java-8%2B-blue)
-![Paradigm](https://img.shields.io/badge/Paradigm-Object--Oriented-success)
-![Data%20Structures](https://img.shields.io/badge/Concept-Collections%20%26%20Sets-orange)
+![Java](https://img.shields.io/badge/Java-17.0.18--tem-blue)
+![Gradle](https://img.shields.io/badge/Gradle-7.6.4%20(wrapper)-green)
+![Build](https://img.shields.io/badge/Build-Gradle%20Application-brightgreen)
+![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-lightgrey)
 
-A small **object-oriented Java model** of a movie rental store. It implements core domain objects (**Actor**, **Studio**, **Movie**, **MovieStore**) based on UML-style specs, and supports inventory operations like adding and renting movies, plus simple querying (e.g., movies by studio, and copyright checks).
-
----
-
-## ✨ What this project demonstrates
-
-- **OOP modelling** (classes, composition, relationships)
-- **Collections** (`ArrayList`, `HashSet`)
-- **Basic business rules**
-  - inventory copy tracking
-  - copyright expiry rule (50 years after release, current year fixed at **2024**)
-- Writing maintainable, readable Java with clear responsibilities
+A small **object-oriented Java** project that models a movie rental store using classes from a UML spec:
+**Actor**, **Studio**, **Movie**, and **MovieStore**.  
+Packaged with the **Gradle Wrapper** for reproducible builds and an **SDKMAN `.sdkmanrc`** to pin Java.
 
 ---
 
-## ✅ Assignment Requirements mapped to implementation
+## ✨ What it does
 
-### Classes
-
-- **Actor(name, movies)**
-- **Studio(name, location, movies)**
-- **Movie(name, studio, releaseYear, actors)**
-  - `copyrighted()` → returns `true` if still under copyright.
-  - **Rule:** copyright expires **50 years** after release.
-  - **Current year is 2024** (per task spec).
-- **MovieStore(name, location)**
-  - `addMovie(movie)` → add to collection; if already exists, increment copies by 1
-  - `rentMovie(movie)` → remove a copy and return `true`; if none available, return `false`
-  - `getMoviesByStudio(studio)` → set of movies produced by the given studio
-  - `getMoviesWithoutCopyright()` → list of movies that exceeded copyright period
+- Represents **actors**, **studios**, and **movies** with proper relationships
+- Tracks store inventory: **add copies**, **rent copies**, and handle **out-of-stock**
+- Queries:
+  - `getMoviesByStudio(studio)` → set of movies produced by a studio
+  - `getMoviesWithoutCopyright()` → list of movies that are out of copyright
+- `Movie.copyrighted()` uses the rule: **copyright expires 50 years after release**
+  - Current year for the assignment logic: **2024**
 
 ---
 
-## 📁 Project structure
+## ✅ Versions (Important)
 
-Typical layout:
+This repo is pinned to a known-working combo:
+
+| Component | Version |
+|---|---|
+| **Java** | **17.0.18-tem** |
+| **Gradle** | **7.6.4** (via `./gradlew`) |
+
+### Why Java 17?
+Gradle 7.6.4 is compatible with Java 17.  
+Running Gradle 7.6.x under Java 21 can trigger errors like **“Unsupported class file major version 65”**.  
+This repo avoids that by pinning **Java 17**.
+
+---
+
+## 📁 Project Structure
+
+Matches the current VS Code tree:
 
 ```
-.
-├── Actor.java
-├── Studio.java
-├── Movie.java
-├── MovieStore.java
-└── Main.java
+moviestore-management-system/
+├── src/
+│   ├── main/java/moviestore/
+│   │   ├── Actor.java
+│   │   ├── Studio.java
+│   │   ├── Movie.java
+│   │   ├── MovieStore.java
+│   │   └── Main.java
+│   └── test/java/moviestore/
+├── gradle/wrapper/
+│   ├── gradle-wrapper.jar
+│   └── gradle-wrapper.properties
+├── .sdkmanrc
+├── build.gradle
+├── gradlew
+├── gradlew.bat
+└── README.md
 ```
+
+> Note: `build/` and `.gradle/` are generated locally and should not be committed.
 
 ---
 
-## ▶️ How to run
+## 🚀 Quick Start (Mac / Linux)
 
-### Option A — Compile + run from terminal (no Gradle/Maven)
-
-From the folder containing the `.java` files:
+From the project root:
 
 ```bash
-javac *.java
-java Main
+# 1) Pin Java (recommended: SDKMAN)
+sdk install java 17.0.18-tem
+sdk env   # reads .sdkmanrc
+
+# 2) Run using the Gradle wrapper
+./gradlew clean run
 ```
 
 ---
 
-## 🧠 Key design choices
+## 🪟 Quick Start (Windows)
 
-- **MovieStore inventory**
-  - Uses a `HashMap<Movie, Integer>` to track **copies per movie**.
-  - This provides **O(1)** expected-time updates and lookups.
-- **Queries**
-  - Returning a `Set<Movie>` avoids duplicates for studio-based queries.
-- **Copyright**
-  - `Movie.copyrighted()` compares `releaseYear + 50` with the fixed year **2024**.
+```bat
+:: Run from project root
+gradlew.bat clean run
+```
 
 ---
 
-## 🛠️ Notes / sanity checks
+## 🧠 Core Classes (UML → Implementation)
 
-If you’re using the included `Main.java`, make sure your constructors match the usage:
+### `Actor`
+- `name`
+- `movies` (collection of movies the actor appears in)
 
-- `Actor` currently expects both `name` and `movies` in the constructor.
-- `Movie` currently expects a `genre` argument in the constructor.
+### `Studio`
+- `name`
+- `location`
+- `movies` produced by the studio
 
-**Quick fix (recommended for portfolio):**
-- Add a convenience constructor to `Actor`:
-  ```java
-  public Actor(String name) { this(name, new Movie[0]); }
-  ```
-- Add a convenience constructor to `Movie`:
-  ```java
-  public Movie(String name, Studio studio, int releaseYear, Actor[] actors) {
-      this(name, studio, releaseYear, actors, "Unknown");
-  }
-  ```
+### `Movie`
+- `name`
+- `studio`
+- `releaseYear`
+- `actors`
+- `copyrighted()`
+  - Returns `true` if **2024 - releaseYear < 50**
+  - Otherwise returns `false`
 
-This keeps backwards compatibility and lets `Main` run cleanly.
+### `MovieStore`
+- `name`, `location`
+- Inventory methods:
+  - `addMovie(movie)` → adds movie or increments copy count
+  - `rentMovie(movie)` → decrements copy count, returns `true` if available else `false`
+- Queries:
+  - `getMoviesByStudio(studio)`
+  - `getMoviesWithoutCopyright()`
 
 ---
 
-## 💡 Suggested enhancements (if you want to level it up)
+## 🧪 Running Tests (Optional)
 
-- Add **unit tests** (JUnit 5) for:
-  - `addMovie` duplicate increments
-  - `rentMovie` copy decrement & zero handling
-  - `copyrighted()` boundary cases
-- Improve equality rules:
-  - implement `equals()` / `hashCode()` for `Movie` (and possibly `Studio`) so inventory and sets behave predictably
-- Add a simple CLI menu for interactive store operations
+If/when you add tests under `src/test/java/...`:
+
+```bash
+./gradlew test
+```
+
+---
+
+## 🧩 Reproducible Setup (No version drift)
+
+This repo includes `.sdkmanrc`:
+
+```
+java=17.0.18-tem
+```
+
+Enable auto-switching Java when you `cd` into the folder:
+
+1. Edit SDKMAN config:
+```bash
+nano ~/.sdkman/etc/config
+```
+
+2. Ensure:
+```
+sdkman_auto_env=true
+```
+
+Then simply:
+```bash
+cd moviestore-management-system
+sdk env
+```
+
+---
+
+## 💼 What this demonstrates (Graduate-role ready)
+
+- Translating **UML → clean OOP design** (encapsulation + relationships)
+- Managing collections and state (inventory counts, queries)
+- Writing maintainable, readable code with clear responsibilities
+- Reproducible builds with **Gradle wrapper**
+- Environment pinning with **SDKMAN** to avoid “works on my machine” problems
 
 ---
 

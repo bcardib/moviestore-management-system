@@ -1,0 +1,8 @@
+# Java / Gradle build outputs
+/build/
+/.gradle/
+*.class
+
+# OS / editor
+.DS_Store
+.vscode/
